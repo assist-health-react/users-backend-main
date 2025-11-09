@@ -1,0 +1,912 @@
+openapi: 3.0.0
+info:
+  title: Healthcare Platform API
+  version: 1.0.0
+  description: |
+    Complete API documentation for the healthcare platform's mobile and web applications.
+    Supports member management, appointments, medical records, and e-commerce functionality.
+
+servers:
+  - url: https://api.healthcare-platform.com/v1
+    description: Production server
+  - url: https://staging-api.healthcare-platform.com/v1
+    description: Staging server
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Base Schemas
+    Address:
+      type: object
+      properties:
+        description:
+          type: string
+        pinCode:
+          type: string
+        region:
+          type: string
+        landmark:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+        location:
+          type: object
+          properties:
+            latitude:
+              type: number
+            longitude:
+              type: number
+
+    TimeSlot:
+      type: object
+      properties:
+        day:
+          type: string
+        from:
+          type: string
+        to:
+          type: string
+
+    # Auth Related Schemas
+    LoginRequest:
+      type: object
+      required:
+        - phoneNumber
+      properties:
+        phoneNumber:
+          type: string
+          example: "+919876543210"
+          pattern: '^\+[1-9]\d{1,14}$'
+
+    OtpVerificationRequest:
+      type: object
+      required:
+        - phoneNumber
+        - otp
+      properties:
+        phoneNumber:
+          type: string
+          example: "+919876543210"
+        otp:
+          type: string
+          example: "123456"
+          pattern: '^\d{6}$'
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        isNewUser:
+          type: boolean
+        userType:
+          type: string
+          enum: [admin, navigator, nurse, doctor, empanelled_doctor, member]
+
+    # Member Related Schemas
+    MemberRegistration:
+      type: object
+      required:
+        - name
+        - phone
+      properties:
+        memberId:
+          type: string
+        AHIdentityCard:
+          type: string
+        isStudent:
+          type: boolean
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        dob:
+          type: string
+          format: date
+        gender:
+          type: string
+          enum: [male, female, other]
+        profilePic:
+          type: string
+          format: binary
+        emergencyContact:
+          type: object
+          properties:
+            name:
+              type: string
+            relation:
+              type: string
+            phone:
+              type: string
+        bloodGroup:
+          type: string
+        heightInFt:
+          type: number
+        weightInKg:
+          type: number
+        additionalInfo:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+        employmentStatus:
+          type: string
+          enum: [employed, unemployed, self_employed, retired, student, homemaker]
+        educationLevel:
+          type: string
+          enum: [primary, secondary, higher_secondary, graduate, post_graduate, doctorate]
+        maritalStatus:
+          type: string
+          enum: [single, married, divorced, widowed]
+        studentDetails:
+          type: object
+          properties:
+            schoolId:
+              type: string
+            institution:
+              type: string
+            grade:
+              type: string
+            section:
+              type: string
+            guardians:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  relation:
+                    type: string
+                  phone:
+                    type: string
+            alternatePhone:
+              type: number
+
+    # Medical Related Schemas
+    MedicalHistory:
+      type: object
+      required:
+        - memberId
+      properties:
+        memberId:
+          type: string
+        treatingDoctors:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              hospitalName:
+                type: string
+              speciality:
+                type: string
+        followUps:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              specialistDetails:
+                type: string
+              remarks:
+                type: string
+        familyHistory:
+          type: array
+          items:
+            type: object
+            properties:
+              condition:
+                type: string
+              relationship:
+                type: string
+        allergies:
+          type: array
+          items:
+            type: object
+            properties:
+              medications:
+                type: string
+              food:
+                type: string
+              other:
+                type: string
+        currentMedications:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              dosage:
+                type: string
+              frequency:
+                type: string
+        surgeries:
+          type: array
+          items:
+            type: object
+            properties:
+              procedure:
+                type: string
+              date:
+                type: string
+                format: date
+              surgeonName:
+                type: string
+        lifestyleHabits:
+          type: object
+          properties:
+            smoking:
+              type: string
+              enum: [never, occasional, daily]
+            alcoholConsumption:
+              type: string
+              enum: [never, occasional, daily]
+            exercise:
+              type: string
+              enum: [never, occasional, daily]
+
+    Appointment:
+      type: object
+      required:
+        - memberId
+        - doctorId
+        - appointmentDateTime
+        - appointmentType
+      properties:
+        memberId:
+          type: string
+        doctorId:
+          type: string
+        navigatorId:
+          type: string
+        appointmentDateTime:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [pending, ongoing, cancelled, completed]
+        appointmentType:
+          type: string
+          enum: [online, offline]
+        additionalInfo:
+          type: string
+        notes:
+          type: string
+        prescription:
+          type: object
+          properties:
+            chiefComplaints:
+              type: string
+            allergies:
+              type: string
+            history:
+              type: string
+            diagnosis:
+              type: string
+            medicines:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  dosage:
+                    type: string
+                  frequency:
+                    type: string
+                  duration:
+                    type: string
+                  investigations:
+                    type: string
+                  treatmentPlan:
+                    type: string
+            additionalInstructions:
+              type: string
+
+    # Subscription Related Schemas
+    SubscriptionPlan:
+      type: object
+      required:
+        - name
+        - code
+        - price
+      properties:
+        name:
+          type: string
+        code:
+          type: string
+          enum: [BASE_PLAN, STUDENT_PLAN, PREMIUM_PLAN]
+        description:
+          type: string
+        price:
+          type: number
+        duration:
+          type: object
+          properties:
+            value:
+              type: number
+            unit:
+              type: string
+              enum: [days, months, years]
+        features:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              description:
+                type: string
+              limit:
+                type: number
+        benefits:
+          type: array
+          items:
+            type: string
+        isActive:
+          type: boolean
+
+    Addon:
+      type: object
+      required:
+        - name
+        - code
+        - price
+      properties:
+        name:
+          type: string
+        code:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        duration:
+          type: object
+          properties:
+            value:
+              type: number
+            unit:
+              type: string
+              enum: [days, months, years]
+        compatiblePlans:
+          type: array
+          items:
+            type: string
+            enum: [BASE_PLAN, STUDENT_PLAN, PREMIUM_PLAN]
+        features:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              description:
+                type: string
+              limit:
+                type: number
+        isActive:
+          type: boolean
+
+    # E-commerce Related Schemas
+    Product:
+      type: object
+      required:
+        - name
+        - mrp
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+        mrp:
+          type: number
+        discountInPercentage:
+          type: number
+        sellingPrice:
+          type: number
+        description:
+          type: string
+        stock:
+          type: number
+        images:
+          type: array
+          items:
+            type: string
+
+    Order:
+      type: object
+      required:
+        - memberId
+        - items
+      properties:
+        memberId:
+          type: string
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              productId:
+                type: string
+              quantity:
+                type: number
+              price:
+                type: number
+        totalAmount:
+          type: number
+        status:
+          type: string
+          enum: [pending, confirmed, shipped, delivered, cancelled]
+        shippingAddress:
+          type: string
+        paymentDetails:
+          type: object
+          properties:
+            method:
+              type: string
+            transactionId:
+              type: string
+            status:
+              type: string
+        orderDate:
+          type: string
+          format: date
+        deliveryDate:
+          type: string
+          format: date
+
+paths:
+  # Auth Endpoints
+  /auth/login:
+    post:
+      summary: Send OTP for login
+      description: Sends OTP to the provided phone number for authentication
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: OTP sent successfully
+        '400':
+          description: Invalid phone number
+
+  /auth/verify-otp:
+    post:
+      summary: Verify OTP
+      description: Verifies OTP and returns authentication token
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OtpVerificationRequest'
+      responses:
+        '200':
+          description: OTP verified successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Invalid OTP
+
+  # Member Endpoints
+  /members/register:
+    post:
+      summary: Register new member
+      description: Register a new member with their details
+      tags:
+        - Members
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MemberRegistration'
+      responses:
+        '201':
+          description: Member registered successfully
+        '400':
+          description: Invalid input data
+
+  /members/profile:
+    get:
+      summary: Get member profile
+      description: Get current member's profile details
+      tags:
+        - Members
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Member profile details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberRegistration'
+
+    put:
+      summary: Update member profile
+      description: Update current member's profile details
+      tags:
+        - Members
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MemberRegistration'
+      responses:
+        '200':
+          description: Profile updated successfully
+
+  # Subprofile Endpoints
+  /subprofiles:
+    get:
+      summary: Get all subprofiles
+      description: Get list of all subprofiles for current member
+      tags:
+        - Subprofiles
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of subprofiles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MemberRegistration'
+
+    post:
+      summary: Create new subprofile
+      description: Create a new subprofile for family member
+      tags:
+        - Subprofiles
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MemberRegistration'
+      responses:
+        '201':
+          description: Subprofile created successfully
+
+  # Medical History Endpoints
+  /medical-history:
+    get:
+      summary: Get medical history
+      description: Get member's medical history
+      tags:
+        - Medical History
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Medical history details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MedicalHistory'
+
+    post:
+      summary: Create medical history
+      description: Create or update medical history
+      tags:
+        - Medical History
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MedicalHistory'
+      responses:
+        '201':
+          description: Medical history created successfully
+
+  # Appointment Endpoints
+  /appointments:
+    get:
+      summary: Get appointments
+      description: Get list of appointments
+      tags:
+        - Appointments
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, ongoing, cancelled, completed]
+      responses:
+        '200':
+          description: List of appointments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Appointment'
+
+    post:
+      summary: Create appointment
+      description: Create a new appointment
+      tags:
+        - Appointments
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Appointment'
+      responses:
+        '201':
+          description: Appointment created successfully
+
+  # Subscription Endpoints
+  /subscriptions:
+    get:
+      summary: Get subscription plans
+      description: Get list of available subscription plans
+      tags:
+        - Subscriptions
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of subscription plans
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SubscriptionPlan'
+
+  /subscriptions/{planId}/purchase:
+    post:
+      summary: Purchase subscription
+      description: Purchase a subscription plan with optional addons
+      tags:
+        - Subscriptions
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: planId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                addons:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Payment initiated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  paymentUrl:
+                    type: string
+                  orderId:
+                    type: string
+
+  # Product Endpoints
+  /products:
+    get:
+      summary: Get products
+      description: Get list of products
+      tags:
+        - Products
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+
+  # Cart Endpoints
+  /cart:
+    get:
+      summary: Get cart
+      description: Get current cart items
+      tags:
+        - Cart
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Cart items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+
+    post:
+      summary: Add to cart
+      description: Add item to cart
+      tags:
+        - Cart
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                productId:
+                  type: string
+                quantity:
+                  type: integer
+      responses:
+        '200':
+          description: Item added to cart
+
+  # Order Endpoints
+  /orders:
+    get:
+      summary: Get orders
+      description: Get list of orders
+      tags:
+        - Orders
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+
+    post:
+      summary: Create order
+      description: Create a new order
+      tags:
+        - Orders
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+      responses:
+        '201':
+          description: Order created successfully
+
+  # Other Endpoints
+  /banners:
+    get:
+      summary: Get banners
+      description: Get list of banners
+      tags:
+        - General
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of banners
+
+  /terms-conditions:
+    get:
+      summary: Get terms and conditions
+      description: Get terms and conditions content
+      tags:
+        - General
+      responses:
+        '200':
+          description: Terms and conditions content
+
+  /faqs:
+    get:
+      summary: Get FAQs
+      description: Get list of FAQs
+      tags:
+        - General
+      responses:
+        '200':
+          description: List of FAQs
+
+  /stats:
+    get:
+      summary: Get stats
+      description: Get member statistics
+      tags:
+        - General
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Member statistics
+
+tags:
+  - name: Authentication
+    description: Authentication related operations
+  - name: Members
+    description: Member management operations
+  - name: Subprofiles
+    description: Subprofile management operations
+  - name: Medical History
+    description: Medical history operations
+  - name: Appointments
+    description: Appointment management operations
+  - name: Subscriptions
+    description: Subscription management operations
+  - name: Products
+    description: Product management operations
+  - name: Cart
+    description: Shopping cart operations
+  - name: Orders
+    description: Order management operations
+  - name: General
+    description: General purpose endpoints

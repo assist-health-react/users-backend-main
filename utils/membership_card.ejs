@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AssistHealth Membership Card</title>
+    <style>
+        @page {
+            size: 115mm 73mm;
+            margin: 0;
+        }
+        html, body {
+            width: 115mm;
+            height: 73mm;
+            margin: 0;
+            padding: 0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        html, body {
+            width: 115mm;
+            height: 73mm;
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            overflow: hidden;
+        }
+
+        .card-container {
+            width: 115mm;
+            height: 73mm;
+            background: black;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            position: relative;
+            margin-bottom: 10px;
+            padding: 0 10px;
+        }
+
+        .premium-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background-color: #C68B30;
+            color: white;
+            padding: 6px 25px;
+            font-size: 14px;
+            border-bottom-left-radius: 15px;
+            z-index: 3;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .valid-date {
+            position: absolute;
+            top: 42px;
+            right: 0;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 8px;
+            padding-right: 10px;
+            z-index: 3;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: normal;
+            letter-spacing: 1px;
+            margin: 0;
+            padding-top: 12px;
+            padding-bottom: 15px;
+        }
+
+        .member-section {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .member-info {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            padding: 8px;
+            border: 1px solid rgba(198, 139, 48, 0.8);
+            width: 65%;
+            position: relative;
+            z-index: 2;
+        }
+
+        .member-name {
+            font-size: 20px;
+            margin-bottom: 6px;
+            color: white;
+        }
+
+        .member-id {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .member-id span {
+            color: white;
+        }
+
+        .support-text {
+            font-size: 10px;
+            color: white;
+            margin-bottom: 3px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        .phone-numbers {
+            font-size: 14px;
+            color: white;
+            margin-bottom: 0;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-section {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-top: 0;
+            padding: 0 10px 15px 10px;
+            gap: 0;
+        }
+
+        .footer-content {
+            flex: 1;
+            margin-right: 0;
+            max-width: 78%;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 0;
+        }
+
+        .footer-text-group {
+            margin-bottom: 6px;
+            padding-top: 3px;
+        }
+
+        .footer-text {
+            font-size: 6.5px;
+            color: white;
+            margin-bottom: 2px;
+            padding-left: 6px;
+            position: relative;
+            line-height: 1.4;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding-right: 5px;
+        }
+
+        .footer-text:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            font-size: 6px;
+            top: 0;
+            color: white;
+        }
+
+        .contact-details {
+            font-size: 8px;
+            color: #4BB6E8;
+            margin-top: 0;
+            padding-left: 6px;
+            white-space: nowrap;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            max-width: 150px;
+            margin-left: 0;
+            padding: 3px 15px 8px 3px;
+            position: absolute;
+            bottom: 15px;
+            right: 0;
+            transform: scale(0.95);
+            transform-origin: right bottom;
+        }
+
+        .logo-svg {
+            width: 38px;
+            height: 38px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            padding: 3px;
+        }
+
+        .logo-svg path {
+            fill: #4BB6E8;
+        }
+
+        .text-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1px;
+            max-width: 125px;
+            margin-bottom: 0;
+            padding-bottom: 0;
+            padding-top: 3px;
+        }
+
+        .logo-text {
+            font-size: 12px;
+            color: white;
+            line-height: 1;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+            margin-bottom: 1px;
+        }
+
+        .logo-text span {
+            color: #4BB6E8;
+            font-weight: 600;
+        }
+
+        .logo-subtext {
+            font-size: 6.5px;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: left;
+            white-space: nowrap;
+            letter-spacing: 0;
+            margin-bottom: 0;
+            line-height: 1;
+            transform: scaleX(0.95);
+            transform-origin: left;
+        }
+
+        .ecg-line {
+            position: absolute;
+            right: 0;
+            top: 70px;
+            width: 25%;
+            height: 60%;
+            opacity: 0.15;
+            transform: scaleX(-1);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .ecg-line svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="card-container">
+        <div class="main-content">
+            <div class="premium-badge">Premium</div>
+            <div class="valid-date">Valid upto <%= validDate %></div>
+            
+            <h1 class="card-title">MEMBERSHIP CARD</h1>
+            
+            <div class="member-section">
+                <div class="member-info">
+                    <div class="member-name"><%= memberName %></div>
+                    <div class="member-id">
+                        <span>AssistHealth ID :</span> <%= assistHealthId %>
+                    </div>
+                </div>
+                <div class="ecg-line">
+                    <svg viewBox="0 0 100 20" preserveAspectRatio="none" width="100%" height="100%">
+                        <path d="M0,10 L30,10 L35,0 L40,20 L45,10 L50,10 L55,0 L60,20 L65,10 L100,10" 
+                              stroke="white" 
+                              fill="none" 
+                              stroke-width="0.8"
+                              stroke-linecap="round"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="support-text">Complete Healthcare Support, Just a Call Away</div>
+            <div class="phone-numbers">9611232593/ 9611232519</div>
+        </div>
+
+        <div class="footer-section">
+            <div class="footer-content">
+                <div class="footer-text-group">
+                    <div class="footer-text">Valid For registered members only.</div>
+                    <div class="footer-text">Use this membership card to schedule any AssistHealth services.</div>
+                    <div class="footer-text">Keep these contact numbers handy for quick access to your NavigaLens.</div>
+                </div>
+                <div class="contact-details">support@assisthealth.in | www.assisthealth.in</div>
+            </div>
+            
+            <div class="logo-section">
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="38" height="38" viewBox="0 0 127 185">
+                   
+                    
+                  </svg>
+                <div class="text-container">
+                    <div class="logo-text">Assist<span>Health</span></div>
+                    <div class="logo-subtext">Personalised Healthcare Support</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

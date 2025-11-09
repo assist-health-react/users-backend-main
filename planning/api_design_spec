@@ -1,0 +1,83 @@
+
+we need to design apis for endusers. covering both web and mobile apps.
+
+mobile app:
+ - login screen
+     - phone number is provided, onclick of login button, otp is sent to the phone number.
+
+- otp screen
+    - otp is sent to the phone number.
+    - user enters the otp, and clicks on verify button.
+    - if otp is verified, this phone number is checked in the database.
+    - if phone number is not found, user is taken to terms and conditions screen.
+    - if phone number is found, user is logged in.
+    - if otp is not verified, user is asked to enter the otp again.
+
+- terms and conditions screen
+    - user is asked to accept the terms and conditions.
+    - if user accepts the terms and conditions, user is redirected to member registration screen.
+    - if user does not accept the terms and conditions, user cannot proceed further.
+
+- member registration screen
+    - user is asked to enter the following information:
+        - upload photo [optional]
+        - name
+        - email
+        - gender
+        - date of birth
+        - blood group [optional]
+        - height [optional]
+        - weight [optional]
+    - user clicks on register button.
+    - user is redirected to choosing subscription screen.
+
+- choosing subscription screen
+    - user is asked to choose the subscription plan.
+    - user can choose the following subscription plans
+    - user sees list of subscription plans with a default selected plan.
+    - user sees list of addons
+    - user can add or remove addons from the selected plan.
+    - user can skip the subscription and continue with the home screen too.
+    - after selecting the plan and addons, user clicks on continue button.
+    - user is redirected to payment screen. [cashfree payment gateway is integrated]
+    - onsuccess of payment, user is redirected to home screen.
+
+- home screen
+    - user gets his profile details.
+    - user can see list of banners to be fetched through api.
+    - onclick appointments, user will see list of appointments.
+    - onclick of add new appointment, user will see the appointment form.
+    - onclick of medical history, user will see his medical history.
+    - user will be able to see his doctor, navigator, his id card details.
+    - user can see ecommerce products and can add to cart.
+    - user can create subprofile for his family members.
+    - user can update their profile details.
+    - user fetch terms and conditions from the database.
+    - user can see faq from the database.
+    - user can see stats from the database.
+    - user should be able to upload prescriptions in image or pdf format.
+
+
+
+
+Web app:
+ - login screen
+    - phone number is provided, onclick of login button, otp is sent to the phone number.
+
+- otp screen
+    - otp is sent to the phone number.
+    - user enters the otp, and clicks on verify button.
+
+- home screen
+    - user can see list of banners to be fetched through api.
+    - user can see his doctor to be fetched through api.
+    - user can see his navigator to be fetched through api.
+    - user can see his id card details to be fetched through api.
+    - user can see list of ecommerce products to be fetched through api.
+    - user can see list of faq to be fetched through api.
+    - user can see stats to be fetched through api.
+    - user can see list of appointments to be fetched through api.
+    - user can book an appointment.
+    - user can see list of medical history to be fetched through api.
+    - user can see list of subprofiles to be fetched through api.
+    
