@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 const { addressSchema, noteSchema } = require('./schemas/common');
-
+const emptyToUndefined = v => (v === '' ? undefined : v)
 const MemberSchema = new Schema({
   memberId: {
     type: String,
@@ -27,7 +27,11 @@ const MemberSchema = new Schema({
   weightInKg: Number,
   emergencyContact: {
     name: String,
-    relation: { type: String, enum: ['father', 'mother', 'guardian', 'spouse', 'other', 'son', 'daughter'] },
+     relation: {
+      type: String,
+      enum: ['father', 'mother', 'guardian', 'spouse', 'other', 'son', 'daughter'],
+      set: emptyToUndefined   // <-- FIX: prevents enum errors for ""
+    },
     phone: String
   },
   address: [addressSchema],

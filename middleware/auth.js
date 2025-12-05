@@ -4,7 +4,7 @@ const { AuthCredential } = require('../models/index');
 const auth = async (req, res, next) => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
-    console.log(`token`, token);
+    console.log(`token 1`, token);
     if (!token) {
       return res.status(401).json({ message: 'No authentication token, access denied' });
     }
