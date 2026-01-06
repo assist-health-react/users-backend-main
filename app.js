@@ -39,7 +39,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(`/users/api/v1/media`, mediaRoutes);
-
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'success',
+    message: 'Website Backend  API is running 🚀'
+  });
+});
 // Routes
 app.use('/users/api/v1/auth', authRoutes);
 app.use('/users/api/v1/members', memberRoutes);
@@ -63,7 +68,7 @@ app.use('/payment', paymentRoutes);//new
 app.use(errorHandler);
 
 // Start server
-const PORT = process.env.PORT || 5002;
+const PORT = process.env.PORT || 3002;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
