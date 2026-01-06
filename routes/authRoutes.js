@@ -2,7 +2,7 @@ const express = require('express');
 const { body } = require('express-validator');
 const authController = require('../controllers/authController');
 const validate = require('../middleware/validator');
-
+const { AuthCredential,Member } = require('../models/index');
 const router = express.Router();
 
 // // Validation middleware
@@ -79,5 +79,50 @@ router.post('/verify-otp', authController.verifyOTP);
 
 router.post('/register', registerValidation, validate, authController.register);
 router.post('/refresh-token', authController.refreshToken);
+
+// Check if email or phone exists
+router.post("/check-user", async (req, res) => {
+  try {
+    const { email, phone } = req.body;
+
+    // Check email in AuthCredential & Member
+    const emailExists =
+      email &&
+      (await AuthCredential.findOne({ email })) ||
+      (await Member.findOne({ email }));
+
+    if (emailExists) {
+      return res.status(400).json({
+        success: false,
+        field: "email",
+        message: "Email already exists",
+      });
+    }
+
+    // Check phone in AuthCredential & Member
+    const phoneExists =
+      phone &&
+      (await AuthCredential.findOne({ phoneNumber: phone })) ||
+      (await Member.findOne({ phone }));
+
+    if (phoneExists) {
+      return res.status(400).json({
+        success: false,
+        field: "phone",
+        message: "Phone number already exists",
+      });
+    }
+
+    console.log(phoneExists)
+    console.log(emailExists)
+
+    // Passed both checks
+    return res.json({ success: true });
+
+  } catch (error) {
+    console.error("Error checking user:", error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+});
 
 module.exports = router;

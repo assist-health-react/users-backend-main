@@ -615,7 +615,7 @@ async login(req, res) {
 
       // A) If temporary password object is corrupted / missing password field
       if (!temp.password || typeof temp.password !== "string") {
-        console.log("Temporary password missing → clearing it");
+        //console.log("Temporary password missing → clearing it");
 
         user.temporaryPassword = null;
         user.passwordResetRequired = false;
@@ -625,7 +625,7 @@ async login(req, res) {
 
       // B) If temporary password expired
       else if (temp.expiresAt < now) {
-        console.log("Temporary password expired → clearing it");
+        //console.log("Temporary password expired → clearing it");
 
         user.temporaryPassword = null;
         user.passwordResetRequired = false;

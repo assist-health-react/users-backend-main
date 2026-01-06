@@ -21,6 +21,7 @@ const Package = require('./packages.model');
 const Setting = require('./Settings');
 const Transaction = require('./transaction.model');
 const Subscription = require('./subscription.model');
+const Student = require('./Student.model');
 
 // Export all models
 module.exports = {
@@ -45,5 +46,6 @@ module.exports = {
   Package,
   Setting,
   Transaction,
-  Subscription
+  Subscription,
+  Student
 }; 

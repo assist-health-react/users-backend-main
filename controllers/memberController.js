@@ -1,8 +1,7 @@
-const { Member } = require('../models/index');
+const { Member,Student } = require('../models/index');
 const multer = require('multer');
 const emailService = require('../utils/email');
 const path = require('path');
-
 
 class MemberController {
   // Register new member
@@ -48,29 +47,103 @@ class MemberController {
   }
 
   // Get member profile
+  // async getProfile(req, res) {
+  //   try {
+  //     const member = await Member.findById(req.user.userId)
+  //       .populate('healthcareTeam.navigator._id', 'name phone profilePic navigatorId introduction')
+  //       .populate('healthcareTeam.doctor._id', 'name profilePic doctorId specialization medicalCouncilRegistrationNumber experienceYears introduction');
+  //     if (!member) {
+  //       return res.status(404).json({ 
+  //         message: 'Member not found',
+  //         error: 'Member profile does not exist'
+  //       });
+  //     }
+  //     res.status(200).json({
+  //       message: 'Profile retrieved successfully',
+  //       data: member
+  //     });
+  //   } catch (error) {
+  //     console.error('Get Profile Error:', error);
+  //     res.status(500).json({ 
+  //       message: 'Error fetching profile',
+  //       error: error.message
+  //     });
+  //   }
+  // }
+
   async getProfile(req, res) {
-    try {
-      const member = await Member.findById(req.user.userId)
-        .populate('healthcareTeam.navigator._id', 'name phone profilePic navigatorId introduction')
-        .populate('healthcareTeam.doctor._id', 'name profilePic doctorId specialization medicalCouncilRegistrationNumber experienceYears introduction');
+  try {
+    const authUser = req.user; // from auth middleware
+
+    // --------------------------------------------------
+    // MEMBER LOGIN
+    // --------------------------------------------------
+    if (authUser.userType === 'member') {
+      const member = await Member.findById(authUser.userId);
+
       if (!member) {
-        return res.status(404).json({ 
-          message: 'Member not found',
-          error: 'Member profile does not exist'
+        return res.status(404).json({
+          status: 'error',
+          message: 'Member not found'
         });
       }
-      res.status(200).json({
-        message: 'Profile retrieved successfully',
+
+      return res.json({
+        status: 'success',
+        type: 'member',
         data: member
       });
-    } catch (error) {
-      console.error('Get Profile Error:', error);
-      res.status(500).json({ 
-        message: 'Error fetching profile',
-        error: error.message
+    }
+
+    // --------------------------------------------------
+    // STUDENT LOGIN (PRIMARY / SUB PROFILE)
+    // --------------------------------------------------
+    if (authUser.userType === 'student') {
+      const student = await Student.findById(authUser.userId);
+
+      if (!student) {
+        return res.status(404).json({
+          status: 'error',
+          message: 'Student not found'
+        });
+      }
+
+      // Fetch sub profiles ONLY for primary student
+      let subProfiles = [];
+
+      if (!student.isSubprofile) {
+        subProfiles = await Student.find({
+          primaryStudentId: student._id,
+          isSubprofile: true
+        }).sort({ createdAt: 1 });
+      }
+
+      return res.json({
+        status: 'success',
+        type: 'student',
+        data: {
+          ...student.toObject(),
+          subProfiles
+        }
       });
     }
+
+    // --------------------------------------------------
+    // UNKNOWN USER TYPE
+    // --------------------------------------------------
+    return res.status(400).json({
+      status: 'error',
+      message: 'Invalid user type'
+    });
+
+  } catch (error) {
+    console.error('Get profile error:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to fetch profile'
+    });
   }
+}
 
   // Update member profile
   async updateProfile(req, res) {
@@ -197,47 +270,147 @@ class MemberController {
   }
 
   // Get all subprofiles
-  async getSubprofiles(req, res) {
-    try {
-      const subprofiles = await Member.find({ 
-        primaryMemberId: req.user._id 
-      });
-      res.status(200).json({
-        message: 'Subprofiles retrieved successfully',
-        data: subprofiles
-      });
-    } catch (error) {
-      console.error('Get Subprofiles Error:', error);
-      res.status(500).json({ 
-        message: 'Error fetching subprofiles',
-        error: error.message
+  
+async getSubprofiles(req, res) {
+  try {
+    const { userType, userId } = req.user;
+
+    let subprofiles = [];
+
+    // ============================
+    // MEMBER → MEMBER SUBPROFILES
+    // ============================
+    if (userType === 'member') {
+      subprofiles = await Member.find({
+        primaryMemberId: userId,
+        isSubprofile: true
+      }).sort({ createdAt: 1 });
+    }
+
+    // ============================
+    // STUDENT → STUDENT SUBPROFILES
+    // ============================
+    else if (userType === 'student') {
+      const student = await Student.findById(userId);
+
+      // sub profile student has no children
+      if (!student || student.isSubprofile) {
+        return res.status(200).json({
+          message: 'No subprofiles',
+          data: []
+        });
+      }
+
+      subprofiles = await Student.find({
+        primaryStudentId: student._id,
+        isSubprofile: true
+      }).sort({ createdAt: 1 });
+    }
+
+    else {
+      return res.status(400).json({
+        message: 'Invalid user type'
       });
     }
+
+    return res.status(200).json({
+      message: 'Subprofiles retrieved successfully',
+      type: userType,
+      count: subprofiles.length,
+      data: subprofiles
+    });
+
+  } catch (error) {
+    console.error('Get Subprofiles Error:', error);
+    res.status(500).json({
+      message: 'Error fetching subprofiles',
+      error: error.message
+    });
   }
+}
+  // async getSubprofiles(req, res) {
+  //   try {
+  //     const subprofiles = await Member.find({ 
+  //       primaryMemberId: req.user._id 
+  //     });
+  //     res.status(200).json({
+  //       message: 'Subprofiles retrieved successfully',
+  //       data: subprofiles
+  //     });
+  //   } catch (error) {
+  //     console.error('Get Subprofiles Error:', error);
+  //     res.status(500).json({ 
+  //       message: 'Error fetching subprofiles',
+  //       error: error.message
+  //     });
+  //   }
+  // }
+
+  async createSubprofile(req, res) {
+  try {
+    const { userType, userId } = req.user;
+
+    // Only MEMBER can create member subprofiles
+    if (userType !== 'member') {
+      return res.status(403).json({
+        message: 'Only members can create subprofiles'
+      });
+    }
+
+    const subprofileData = {
+      ...req.body,
+      isSubprofile: true,
+      primaryMemberId: userId,
+      profilePic: req.file ? req.file.filename : undefined
+    };
+
+    const subprofile = await Member.create(subprofileData);
+
+    // Push subprofile ID to parent member
+    await Member.findByIdAndUpdate(userId, {
+      $push: { subprofileIds: subprofile._id }
+    });
+
+    res.status(201).json({
+      message: 'Subprofile created successfully',
+      data: subprofile
+    });
+
+  } catch (error) {
+    console.error('Create Subprofile Error:', error);
+    res.status(500).json({
+      message: 'Error creating subprofile',
+      error: error.message
+    });
+  }
+}
+
 
   // Create subprofile
-  async createSubprofile(req, res) {
-    try {
-      const subprofileData = {
-        ...req.body,
-        primaryMemberId: req.user._id,
-        profilePic: req.file ? req.file.filename : undefined,
-        userType: 'member'
-      };
+  // async createSubprofile(req, res) {
+  //   try {
+  //     const subprofileData = {
+  //       ...req.body,
+  //       primaryMemberId: req.user._id,
+  //       profilePic: req.file ? req.file.filename : undefined,
+  //       userType: 'member'
+  //     };
 
-      const subprofile = await Member.create(subprofileData);
-      res.status(201).json({
-        message: 'Subprofile created successfully',
-        data: subprofile
-      });
-    } catch (error) {
-      console.error('Create Subprofile Error:', error);
-      res.status(500).json({ 
-        message: 'Error creating subprofile',
-        error: error.message
-      });
-    }
-  }
+  //     const subprofile = await Member.create(subprofileData);
+  //     res.status(201).json({
+  //       message: 'Subprofile created successfully',
+  //       data: subprofile
+  //     });
+  //   } catch (error) {
+  //     console.error('Create Subprofile Error:', error);
+  //     res.status(500).json({ 
+  //       message: 'Error creating subprofile',
+  //       error: error.message
+  //     });
+  //   }
+  // }
+
+  
 
   /**
    * Generate membership card PDF for a member

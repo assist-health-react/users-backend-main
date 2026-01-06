@@ -15,10 +15,28 @@ module.exports = {
             phone: `9880772287`,
             email: `assisthealthsolutions@gmail.com`,
         },
-        sandbox: {
-            merchantId: "PGTESTPAYUAT86",
-            merchantKey: "96434309-7796-489d-8924-ab56988a6076",
-        }
+        // sandbox: {
+        //     merchantId: "PGTESTPAYUAT86",
+        //     merchantKey: "96434309-7796-489d-8924-ab56988a6076",
+        // }
+      
+
+            sandbox: {
+                merchantId: process.env.PHONEPE_MERCHANT_ID,
+                merchantKey: process.env.PHONEPE_MERCHANT_KEY,
+
+                baseUrl: "https://api-preprod.phonepe.com/apis/hermes/pg/v1/pay",
+                statusUrl: "https://api-preprod.phonepe.com/apis/hermes/pg/v1/status",
+
+                redirectUrl: process.env.BASE_DOMAIN + "payment/status",
+                successUrl: process.env.BASE_FORNTEND + "subscription/success",
+                failureUrl: process.env.BASE_FORNTEND + "subscription/failure",
+                callbackUrl: process.env.BASE_DOMAIN + "payment/callback",
+
+                mobileSuccessUrl: "assisthealth://payment/success",
+                mobileFailureUrl: "assisthealth://payment/failure"
+                }
+
     },
     msg91: {
         authkey: "448794A487pnci686bc7bfP1",

@@ -56,6 +56,8 @@ app.use('/users/api/v1/orders', orderRoutes);
 app.use('/users/api/v1/packages', packageRoutes);
 app.use('/users/api/v1/payments', paymentRoutes);
 app.use('/users/api/v1', generalRoutes);
+app.use('/payment', paymentRoutes);//new
+
 
 // Error handling
 app.use(errorHandler);

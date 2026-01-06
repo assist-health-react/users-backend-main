@@ -1,4 +1,4 @@
-const { Member, Appointment, Package, Setting } = require('../models/index');
+const { Member, Appointment, Package, Setting,Student } = require('../models/index');
 const mongoose = require('mongoose');
 
 const Banner = {}
@@ -114,28 +114,109 @@ By using our services, you agree to the terms of this Privacy Policy.`
   }
 
   // Get member statistics
-  async getStats(req, res) {
-    try {
-      const memberId = req.user.userId;
+  // async getStats(req, res) {
+  //   try {
+  //     const memberId = req.user.userId;
 
-      const member = await Member.findOne({ _id: new mongoose.Types.ObjectId(memberId) });
-      let stats = {
-        totalAppointments: await Appointment.countDocuments({ memberId }),
-        pendingAppointments: await Appointment.countDocuments({ memberId, status: 'pending' }),
-        completedAppointments: await Appointment.countDocuments({ memberId, status: 'completed' }),
-        ongoingAppointments: await Appointment.countDocuments({ memberId, status: 'ongoing' }),
-        subprofiles: member.subprofileIds.length
+  //     const member = await Member.findOne({ _id: new mongoose.Types.ObjectId(memberId) });
+  //     let stats = {
+  //       totalAppointments: await Appointment.countDocuments({ memberId }),
+  //       pendingAppointments: await Appointment.countDocuments({ memberId, status: 'pending' }),
+  //       completedAppointments: await Appointment.countDocuments({ memberId, status: 'completed' }),
+  //       ongoingAppointments: await Appointment.countDocuments({ memberId, status: 'ongoing' }),
+  //       subprofiles: member.subprofileIds.length
+  //     }
+
+  //     res.status(200).json({
+  //       message: 'Stats fetched successfully',
+  //       data: stats
+  //     });
+  //   } catch (error) {
+  //     console.error('Get Stats Error:', error);
+  //     res.status(500).json({ message: 'Error fetching statistics' });
+  //   }
+  // }
+  async getStats(req, res) {
+  try {
+    const { userType, userId } = req.user;
+
+    // =================================================
+    // MEMBER STATS
+    // =================================================
+    if (userType === 'member') {
+      const member = await Member.findById(userId);
+
+      if (!member) {
+        return res.status(404).json({
+          message: 'Member not found'
+        });
       }
 
-      res.status(200).json({
+      const stats = {
+        totalAppointments: await Appointment.countDocuments({ memberId: member._id }),
+        pendingAppointments: await Appointment.countDocuments({ memberId: member._id, status: 'pending' }),
+        completedAppointments: await Appointment.countDocuments({ memberId: member._id, status: 'completed' }),
+        ongoingAppointments: await Appointment.countDocuments({ memberId: member._id, status: 'ongoing' }),
+        subprofiles: member.subprofileIds?.length || 0
+      };
+
+      return res.status(200).json({
         message: 'Stats fetched successfully',
+        type: 'member',
         data: stats
       });
-    } catch (error) {
-      console.error('Get Stats Error:', error);
-      res.status(500).json({ message: 'Error fetching statistics' });
     }
+
+    // =================================================
+    // STUDENT STATS
+    // =================================================
+    if (userType === 'student') {
+      const student = await Student.findById(userId);
+
+      if (!student) {
+        return res.status(404).json({
+          message: 'Student not found'
+        });
+      }
+
+      // appointments linked to student
+      const stats = {
+        totalAppointments: await Appointment.countDocuments({ studentId: student._id }),
+        pendingAppointments: await Appointment.countDocuments({ studentId: student._id, status: 'pending' }),
+        completedAppointments: await Appointment.countDocuments({ studentId: student._id, status: 'completed' }),
+        ongoingAppointments: await Appointment.countDocuments({ studentId: student._id, status: 'ongoing' }),
+        subprofiles: 0
+      };
+
+      // only primary student has sub profiles
+      if (!student.isSubprofile) {
+        stats.subprofiles = await Student.countDocuments({
+          primaryStudentId: student._id,
+          isSubprofile: true
+        });
+      }
+
+      return res.status(200).json({
+        message: 'Stats fetched successfully',
+        type: 'student',
+        data: stats
+      });
+    }
+
+    // =================================================
+    // UNKNOWN USER TYPE
+    // =================================================
+    return res.status(400).json({
+      message: 'Invalid user type'
+    });
+
+  } catch (error) {
+    console.error('Get Stats Error:', error);
+    res.status(500).json({
+      message: 'Error fetching statistics'
+    });
   }
+}
 
   // Contact form submission
   async submitContactForm(req, res) {

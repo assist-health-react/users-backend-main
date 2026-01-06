@@ -1,0 +1,22 @@
+name: Deploy Admin Backend
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            rsync -av --delete $GITHUB_WORKSPACE/ ~/assist-health/users-backend-main/
+            cd ~/assist-health
+            docker compose -f docker-compose.admin.yml build users_backend
+            docker compose -f docker-compose.admin.yml up -d users_backend
