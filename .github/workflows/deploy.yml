@@ -16,7 +16,21 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            rsync -av --delete $GITHUB_WORKSPACE/ ~/assist-health/users-backend-main/
-            cd ~/assist-health
-            docker compose -f docker-compose.admin.yml build users_backend
-            docker compose -f docker-compose.admin.yml up -d users_backend
+            set -e
+
+            echo "📂 Go to admin frontend repo"
+            cd /home/ec2-user/assist-health/users-backend-main
+
+            echo "⬇ Pull latest code"
+            git pull origin main
+
+            echo "🐳 Build & restart admin frontend"
+            cd /home/ec2-user/assist-health
+            docker compose -f docker-compose.users.yml build users_backend
+            docker compose -f docker-compose.users.yml up -d --build users_backend
+          # script: |
+          #   rsync -av --delete $GITHUB_WORKSPACE/ ~/assist-health/users-backend-main/
+          #   cd ~/assist-health
+          #   docker compose -f docker-compose.admin.yml build users_backend
+          #   docker compose -f docker-compose.admin.yml up -d users_backend
+          
