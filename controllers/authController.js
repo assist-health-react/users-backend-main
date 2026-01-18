@@ -596,6 +596,7 @@ async login(req, res) {
     const user = await AuthCredential.findOne(
       email ? { email } : { phoneNumber }
     );
+    console.log(user)
 
     if (!user) {
       return res.status(401).json({
@@ -610,7 +611,10 @@ async login(req, res) {
     // ----------------------------------------------------------------------
     // 2. HANDLE TEMPORARY PASSWORD IF EXISTS
     // ----------------------------------------------------------------------
-    if (user.temporaryPassword) {
+    if (
+      user.temporaryPassword &&
+      typeof user.temporaryPassword.password === "string"
+    ) {
       const temp = user.temporaryPassword;
 
       // A) If temporary password object is corrupted / missing password field
@@ -660,6 +664,10 @@ async login(req, res) {
    
       }
     }
+    console.log(user.password)
+    console.log(password)
+
+    console.log("Step 3 DONE...................")
 
     // ----------------------------------------------------------------------
     // 4. IF STILL NOT MATCHED → INVALID
