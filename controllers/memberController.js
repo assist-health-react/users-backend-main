@@ -88,11 +88,20 @@ class MemberController {
         });
       }
 
+      // return res.json({
+      //   status: 'success',
+      //   type: 'member',
+      //   data: member
+      // });
+      //22.1.26
       return res.json({
-        status: 'success',
-        type: 'member',
-        data: member
-      });
+          status: 'success',
+          type: 'member',
+          data: {
+            profile: member
+          }
+        });
+
     }
 
     // --------------------------------------------------
