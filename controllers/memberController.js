@@ -74,7 +74,8 @@ class MemberController {
   async getProfile(req, res) {
   try {
     const authUser = req.user; // from auth middleware
-
+    //  console.log(authUser)
+    //  console.log(authUser.userId)
     // --------------------------------------------------
     // MEMBER LOGIN
     // --------------------------------------------------
@@ -97,9 +98,10 @@ class MemberController {
       return res.json({
           status: 'success',
           type: 'member',
-          data: {
-            profile: member
-          }
+          // data: {
+          //   profile: member
+          // }
+          data: member
         });
 
     }
